@@ -2,8 +2,9 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from datetime import timedelta
+from typing import Optional
 
-Token = 'Your token'  # Token for the bot
+Token = ''  # Token for the bot
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -148,25 +149,41 @@ async def user_info(interaction: discord.Interaction,member: discord.Member | No
 
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="lock") #lock
-@app_commands.describe(tchannel="the text channel to lock", vchannel="the voice channel to lock")
+@bot.tree.command(name="lock", description="Lock a text or voice channel")
+@app_commands.describe(channel="The channel to lock")
 @app_commands.default_permissions(manage_channels=True)
-async def lock(interaction: discord.Interaction, tchannel: Optional[discord.TextChannel] = None, vchannel: Optional[discord.VoiceChannel] = None):
-    if tchannel:
-        await interaction.channel.lock(tchannel)
-    elif vchannel:
-        await interaction.channel.lock(vchannel)
+async def lock(interaction: discord.Interaction,channel: Optional[discord.abc.GuildChannel] = None):
+    
+    channel = channel or interaction.channel
+    everyone = interaction.guild.default_role
+    overwrite = channel.overwrite_for(every one)
+    
+    if isinstance(channel, discord.TextChannel):
+        overwrite.send_messages = False
+    if isinstance(channel, discord.VoiceChannelChannel):
+        overwrite.connect = False
+    else:
+        return await interaction.response.send_message("❌ Unsupported channel type", ephemeral=True)
+        
+    await channel.set_permissions(everyone, overwrite=overwrite)
+    await interaction.response.send_message(f"🔒 **{channel.mention} has been locked**", ephemeral=True)
+    
+@bot.tree.command(name="unlock", description="Unlock a text or voice channel")
+@app_commands.describe(channel="The channel to unlock")
+@app_commands.default_permissions(manage_channels=True)   
+    
+    channel = channel or interaction.channel
+    everyone = interaction.guild.default_role
+    overwrite = channel.overwrites_for(everyone)
 
-@bot.tree.command(name="unlock") #unlock
-@app_commands.describe(tchannel="the text channel to lock", vchannel="the voice channel to lock")
-@app_commands.default_permissions(manage_channels=True)
-async def lock(interaction: discord.Interaction, tchannel: Optional[discord.TextChannel] = None, vchannel: Optional[discord.VoiceChannel] = None):
-    if tchannel:
-        await interaction.channel.unlock(tchannel)
-        await interaction.response.send_message(f"**channel {tchannel} has been cleared** ✅", ephemeral=True)
-    elif vchannel:
-        await interaction.channel.unlock(vchannel)
-        await interaction.response.send_message(f"**channel {vchannel} has been cleared** ✅", ephemeral=True)
+    if isinstance(channel, discord.TextChannel):
+        overwrite.send_messages = True
+    elif isinstance(channel, discord.VoiceChannel):
+        overwrite.connect = True
+    else:
+        return await interaction.response.send_message("❌ Unsupported channel type", ephemeral=True)
 
+    await channel.set_permissions(everyone, overwrite=overwrite)
+    await interaction.response.send_message(f"🔒 **{channel.mention} has been unlocked**", ephemeral=True)
 
 bot.run(Token)
