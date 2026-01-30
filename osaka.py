@@ -40,7 +40,7 @@ async def ping(interaction: discord.Interaction):
 async def say(interaction: discord.Interaction, message:str):   
     if message:
         await interaction.response.send_message(message)
-    if not message:
+    elif not message:
         await interaction.response.send_message("**you must select message** ⚠️", ephemeral=True)
 
 
@@ -55,51 +55,36 @@ async def clear_channel(interaction: discord.Interaction):
 @app_commands.describe(user="The user to kick")
 @app_commands.default_permissions(kick_members=True)
 async def kick(interaction: discord.Interaction, user: discord.Member):
-    if user:
-        await user.kick(reason="womp womp :)")
-        await interaction.response.send_message(f"**you kicked the {user} ✅**", ephemeral=True)
-    if not user:
-        await interaction.response.send_message("**you must select a user** ⚠️", ephemeral=True)
+    await user.kick(reason="womp womp :)")
+    await interaction.response.send_message(f"**you kicked the {user} ✅**", ephemeral=True)
 
 @bot.tree.command(name="ban") #ban user
 @app_commands.describe(user="The user to ban")
 @app_commands.default_permissions(ban_members=True)
 async def ban(interaction: discord.Interaction, user: discord.Member):
-    if user:
-        await user.ban(reason="womp womp :)")
-        await interaction.response.send_message(f"**you banned the {user} ✅**", ephemeral=True)
-    if not user:
-        await interaction.response.send_message("**you must select a user** ⚠️", ephemeral=True)
+    await user.ban(reason="womp womp :)")
+    await interaction.response.send_message(f"**you banned the {user} ✅**", ephemeral=True)
         
 @bot.tree.command(name="unban") #unban user
 @app_commands.describe(user="The user to unban")
 @app_commands.default_permissions(ban_members=True)
 async def unban(interaction: discord.Interaction, user: discord.Member):
-    if user:
-        await interaction.guild.unban(user)
-        await interaction.response.send_message(f"**you unbanned the {user} ✅**", ephemeral=True)
-    if not user:
-        await interaction.response.send_message("**you must select a user** ⚠️", ephemeral=True)
+    await interaction.guild.unban(user)
+    await interaction.response.send_message(f"**you unbanned the {user} ✅**", ephemeral=True)
 
 @bot.tree.command(name="timeout") #timeout user
 @app_commands.describe(user="The user to timeout")
 @app_commands.default_permissions(moderate_members=True)
 async def timeout(interaction: discord.Interaction, user: discord.Member, minutes: int):
-    if user:
-        await user.timeout(timedelta(minutes=minutes), reason="womp womp :)")
-        await interaction.response.send_message(f"**you timeout the {user} ✅**", ephemeral=True)
-    if not user:
-        await interaction.response.send_message("**you must select a user** ⚠️", ephemeral=True)
+    await user.timeout(timedelta(minutes=minutes), reason="womp womp :)")
+    await interaction.response.send_message(f"**you timeout the {user} ✅**", ephemeral=True)
         
 @bot.tree.command(name="untimeout") #untimeout user
 @app_commands.describe(user="The user to  untimeout")
 @app_commands.default_permissions(moderate_members=True)
 async def untimeout(interaction: discord.Interaction, user: discord.Member, minutes: int):
-    if user:
-        await user.timeout(None)
-        await interaction.response.send_message(f"**you untimeout the {user} ✅**", ephemeral=True)
-    if not user:
-        await interaction.response.send_message("**you must select a user** ⚠️", ephemeral=True)
+    await user.timeout(None)
+    await interaction.response.send_message(f"**you untimeout the {user} ✅**", ephemeral=True)
 
 @bot.tree.command(name="channel-delete") #delete channel
 @app_commands.describe(tchannel="The text channel to delete", vchannel="The voice channel to delete")
@@ -115,7 +100,7 @@ async def channeldel(interaction: discord.Interaction, tchannel: Optional[discor
     await interaction.response.send_message("**you must select a channel** ⚠️", ephemeral=True)
 
 @bot.tree.command(name="server-info") #server info
-@app_commands.default_permissions(send_message=True,use_commands=True)
+@app_commands.default_permissions(send_messages=True)
 async def serverinfo(interaction: discord.Interaction):
     guild = interaction.guild
     embed = discord.Embed(title=f"📊 Server info: {guild.name}", color=discord.Color.blurple())
@@ -132,7 +117,7 @@ async def serverinfo(interaction: discord.Interaction):
     
 @bot.tree.command(name="user-info") #user info
 @app_commands.describe(member="The member to get info about")
-@app_commands.default_permissions(send_message=True,use_commands=True)
+@app_commands.default_permissions(send_messages=True)
 async def user_info(interaction: discord.Interaction,member: discord.Member | None = None):
     member = member or interaction.user
 
@@ -160,13 +145,13 @@ async def lock(interaction: discord.Interaction,channel: Optional[discord.abc.Gu
     
     if isinstance(channel, discord.TextChannel):
         overwrite.send_messages = False
-    if isinstance(channel, discord.VoiceChannel):
+    elif isinstance(channel, discord.VoiceChannel):
         overwrite.connect = False
     else:
         return await interaction.response.send_message("❌ Unsupported channel type", ephemeral=True)
         
     await channel.set_permissions(everyone, overwrite=overwrite)
-    await interaction.response.send_message(f"🔒 **{channel.mention} has been locked**", ephemeral=True)
+    await interaction.response.send_message(f"🔒 **{channel.mention} has been locked**")
     
 @bot.tree.command(name="unlock", description="Unlock a text or voice channel")
 @app_commands.describe(channel="The channel to unlock")
@@ -184,6 +169,6 @@ async def unlock(interaction: discord.Interaction,channel: Optional[discord.abc.
         return await interaction.response.send_message("❌ Unsupported channel type", ephemeral=True)
 
     await channel.set_permissions(everyone, overwrite=overwrite)
-    await interaction.response.send_message(f"🔒 **{channel.mention} has been unlocked**", ephemeral=True)
+    await interaction.response.send_message(f"🔒 **{channel.mention} has been unlocked**")
 
 bot.run(Token)
