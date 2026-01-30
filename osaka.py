@@ -74,7 +74,7 @@ async def ban(interaction: discord.Interaction, user: discord.Member):
 @bot.tree.command(name="unban") #unban user
 @app_commands.describe(user="The user to unban")
 @app_commands.default_permissions(ban_members=True)
-async def ban(interaction: discord.Interaction, user: discord.Member):
+async def unban(interaction: discord.Interaction, user: discord.Member):
     if user:
         await interaction.guild.unban(user)
         await interaction.response.send_message(f"**you unbanned the {user} ✅**", ephemeral=True)
@@ -94,7 +94,7 @@ async def timeout(interaction: discord.Interaction, user: discord.Member, minute
 @bot.tree.command(name="untimeout") #untimeout user
 @app_commands.describe(user="The user to  untimeout")
 @app_commands.default_permissions(moderate_members=True)
-async def timeout(interaction: discord.Interaction, user: discord.Member, minutes: int):
+async def untimeout(interaction: discord.Interaction, user: discord.Member, minutes: int):
     if user:
         await user.timeout(None)
         await interaction.response.send_message(f"**you untimeout the {user} ✅**", ephemeral=True)
@@ -118,7 +118,7 @@ async def channeldel(interaction: discord.Interaction, tchannel: Optional[discor
 @app_commands.default_permissions(send_message=True,use_commands=True)
 async def serverinfo(interaction: discord.Interaction):
     guild = interaction.guild
-    embed = discord.Embed(title =f"📊 server info: {guild.name}"color discord.color.blurple())
+    embed = discord.Embed(title=f"📊 Server info: {guild.name}", color=discord.Color.blurple())
     
     embed.set_thumbnail(url=guild.icon.url if guild.icon else None)
     embed.add_field(name="🆔 server ID", value=guild.id, inline=True)
@@ -156,11 +156,11 @@ async def lock(interaction: discord.Interaction,channel: Optional[discord.abc.Gu
     
     channel = channel or interaction.channel
     everyone = interaction.guild.default_role
-    overwrite = channel.overwrite_for(every one)
+    overwrite = channel.overwrites_for(everyone)
     
     if isinstance(channel, discord.TextChannel):
         overwrite.send_messages = False
-    if isinstance(channel, discord.VoiceChannelChannel):
+    if isinstance(channel, discord.VoiceChannel):
         overwrite.connect = False
     else:
         return await interaction.response.send_message("❌ Unsupported channel type", ephemeral=True)
@@ -171,15 +171,15 @@ async def lock(interaction: discord.Interaction,channel: Optional[discord.abc.Gu
 @bot.tree.command(name="unlock", description="Unlock a text or voice channel")
 @app_commands.describe(channel="The channel to unlock")
 @app_commands.default_permissions(manage_channels=True)   
-    
+async def unlock(interaction: discord.Interaction,channel: Optional[discord.abc.GuildChannel] = None):
     channel = channel or interaction.channel
     everyone = interaction.guild.default_role
     overwrite = channel.overwrites_for(everyone)
 
     if isinstance(channel, discord.TextChannel):
-        overwrite.send_messages = True
+        overwrite.send_messages = None
     elif isinstance(channel, discord.VoiceChannel):
-        overwrite.connect = True
+        overwrite.connect = None
     else:
         return await interaction.response.send_message("❌ Unsupported channel type", ephemeral=True)
 
