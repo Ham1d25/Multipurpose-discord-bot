@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from datetime import timedelta
 from typing import Optional
+import random
 
 Token = ''  # Token for the bot
 
@@ -58,35 +59,35 @@ async def kick(interaction: discord.Interaction, user: discord.Member):
     await user.kick(reason="womp womp :)")
     await interaction.response.send_message(f"**you kicked the {user} ✅**", ephemeral=True)
 
-@bot.tree.command(name="ban") #ban user
+@bot.tree.command(name="ban", description="Ban a user from the server") #ban user
 @app_commands.describe(user="The user to ban")
 @app_commands.default_permissions(ban_members=True)
 async def ban(interaction: discord.Interaction, user: discord.Member):
     await user.ban(reason="womp womp :)")
     await interaction.response.send_message(f"**you banned the {user} ✅**", ephemeral=True)
         
-@bot.tree.command(name="unban") #unban user
+@bot.tree.command(name="unban", description="Unban a user from the server") #unban user
 @app_commands.describe(user="The user to unban")
 @app_commands.default_permissions(ban_members=True)
 async def unban(interaction: discord.Interaction, user: discord.Member):
     await interaction.guild.unban(user)
     await interaction.response.send_message(f"**you unbanned the {user} ✅**", ephemeral=True)
 
-@bot.tree.command(name="timeout") #timeout user
+@bot.tree.command(name="timeout", description="Timeout a user") #timeout user
 @app_commands.describe(user="The user to timeout")
 @app_commands.default_permissions(moderate_members=True)
 async def timeout(interaction: discord.Interaction, user: discord.Member, minutes: int):
     await user.timeout(timedelta(minutes=minutes), reason="womp womp :)")
     await interaction.response.send_message(f"**you timeout the {user} ✅**", ephemeral=True)
         
-@bot.tree.command(name="untimeout") #untimeout user
+@bot.tree.command(name="untimeout", description="Remove timeout from a user") #untimeout user
 @app_commands.describe(user="The user to  untimeout")
 @app_commands.default_permissions(moderate_members=True)
 async def untimeout(interaction: discord.Interaction, user: discord.Member, minutes: int):
     await user.timeout(None)
     await interaction.response.send_message(f"**you untimeout the {user} ✅**", ephemeral=True)
 
-@bot.tree.command(name="channel-delete") #delete channel
+@bot.tree.command(name="channel-delete", description="Delete a text or voice channel") #delete channel
 @app_commands.describe(tchannel="The text channel to delete", vchannel="The voice channel to delete")
 @app_commands.default_permissions(manage_channels=True)
 async def channeldel(interaction: discord.Interaction, tchannel: Optional[discord.TextChannel] = None, vchannel: Optional[discord.VoiceChannel] = None):
@@ -99,7 +100,7 @@ async def channeldel(interaction: discord.Interaction, tchannel: Optional[discor
     
     await interaction.response.send_message("**you must select a channel** ⚠️", ephemeral=True)
 
-@bot.tree.command(name="server-info") #server info
+@bot.tree.command(name="server-info", description="Get information about the server") #server info
 @app_commands.default_permissions(send_messages=True)
 async def serverinfo(interaction: discord.Interaction):
     guild = interaction.guild
@@ -115,7 +116,7 @@ async def serverinfo(interaction: discord.Interaction):
     
     await interaction.response.send_message(embed=embed)
     
-@bot.tree.command(name="user-info") #user info
+@bot.tree.command(name="user-info", description="Get information about a user") #user info
 @app_commands.describe(member="The member to get info about")
 @app_commands.default_permissions(send_messages=True)
 async def user_info(interaction: discord.Interaction,member: discord.Member | None = None):
@@ -170,5 +171,20 @@ async def unlock(interaction: discord.Interaction,channel: Optional[discord.abc.
 
     await channel.set_permissions(everyone, overwrite=overwrite)
     await interaction.response.send_message(f"🔒 **{channel.mention} has been unlocked**")
+    
+@bot.tree.command(name="flip-coin", description="flip a coin")
+@app_commands.default_permissions(send_messages=True)   
+async def flipacoin(interaction: discord.Interaction):
+    chance = random.randint(1, 2)
+    if chance == 1:
+        await interaction.response.send_message("heads 🙂‍")
+    elif chance == 2:
+        await interaction.response.send_message("tails 🐈‍")
+
+@bot.tree.command(name="roll-dice", description="roll a dice")
+@app_commands.default_permissions(send_messages=True)   
+async def rolldice(interaction: discord.Interaction):
+    chance = random.randint(1, 6)
+    await interaction.response.send_message(f"you rolled a {chance} 🎲")
 
 bot.run(Token)
